@@ -1,9 +1,9 @@
 package config
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
-	"encoding/json"
 )
 
 
@@ -30,4 +30,8 @@ func Read() (Config, error) {
 	}
 
 	return config, nil
+}
+
+func (c *Config) setUser() error {
+	return nil
 }
