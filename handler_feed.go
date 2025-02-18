@@ -19,17 +19,16 @@ func handlerListFeeds(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFeed(s *state, cmd command) error {
+func handlerFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 2 {
 		return fmt.Errorf("usage: %v <name> <url>", cmd.Name)
 	}
-
+	
 	name := cmd.Args[0]
 	url := cmd.Args[1]
 
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("unable to retrieve current user: %v", err)
+	if name == "" || url == "" {
+		return fmt.Errorf("name and URL cannot be empty")
 	}
 
 	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
@@ -44,6 +43,17 @@ func handlerFeed(s *state, cmd command) error {
 		return fmt.Errorf("unable to generate feed: %v", err)
 	}
 
+	_, err = s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID: uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		UserID: user.ID,
+		FeedID: feed.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("unable to create feed_follow record: %v", err)
+	}
+
 	fmt.Println("Feed created successfully:")
 	printFeed(feed)
 	fmt.Println()
@@ -51,7 +61,6 @@ func handlerFeed(s *state, cmd command) error {
 
 	return nil
 }
-
 
 func printFeed(feed database.Feed) {
 	fmt.Printf("* ID:            %s\n", feed.ID)
