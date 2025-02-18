@@ -28,3 +28,16 @@ WHERE
     feed_follows.user_id = $1
 ORDER BY
     feed_follows.created_at DESC;
+
+-- name: DeleteFeedFollow :exec
+DELETE
+FROM
+    feed_follows
+WHERE 
+    feed_follows.feed_id = (
+        SELECT feeds.id FROM feeds WHERE feeds.url = $1
+    )
+AND
+    feed_follows.user_id = (
+        SELECT users.id FROM users WHERE users.name = $2
+    );

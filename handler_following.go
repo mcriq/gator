@@ -9,11 +9,6 @@ import (
 
 func handlerFollowing(s *state, cmd command, user database.User) error {
 
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("unable to retrieve user: %v", err)
-	}
-
 	follows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return fmt.Errorf("unable to get follows for user: %s", err)
@@ -24,3 +19,4 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 	}
 	return nil
 }
+
